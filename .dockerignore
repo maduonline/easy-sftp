@@ -1,2 +1,8 @@
 .git
 tests
+*.md
+*.txt
+*.png
+LICENSE.txt
+.github
+.gitmodules

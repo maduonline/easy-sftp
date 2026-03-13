@@ -29,20 +29,20 @@ jobs:
 
       - name: Pull latest image
         run: |
-          latest_tag="docker.pkg.github.com/${{ inputs.image }}/${{ inputs.tag }}"
+          latest_tag="ghcr.io/${{ inputs.image }}/${{ inputs.tag }}"
           echo "latest_tag=$latest_tag" >> "$GITHUB_ENV"
 
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com \
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
             -u ${{ github.actor }} --password-stdin
-          docker pull "$latest_tag"
-          docker logout docker.pkg.github.com
+          docker pull "$latest_tag" || true
+          docker logout ghcr.io
 
       - name: Check if git revision has changed
         id: revision
         run: |
           revision="$(docker image inspect --format \
             '{{index .Config.Labels "org.opencontainers.image.revision"}}' \
-            "$latest_tag")"
+            "$latest_tag" 2>/dev/null || echo "")"
           echo "$revision"
           if [ "$revision" != "$GITHUB_SHA" ]; then
             echo "Latest image revision ($revision) is not the same as current revision ($GITHUB_SHA)"
@@ -53,9 +53,8 @@ jobs:
           fi
 
       - name: Check for new updates
-        id: updates
         run: |
-          packages="$(docker run --rm --entrypoint=/bin/sh "$latest_tag" -c "${{ inputs.update-check }}")"
+          packages="$(docker run --rm --entrypoint=/bin/sh "$latest_tag" -c "${{ inputs.update-check }}" 2>/dev/null || echo "image_not_found")"
           echo "$packages"
           if [ "${#packages}" -gt 0 ]; then
             echo "Updates available"
@@ -68,13 +67,17 @@ jobs:
       - name: Results
         id: result
         run: |
-          cat result
-          if grep -q "=true" result; then
-            echo "Result: changes detected"
+          if [ ! -f result ]; then
             echo "detected=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Result: no change detected"
-            echo "detected=false" >> "$GITHUB_OUTPUT"
+            cat result
+            if grep -q "=true" result; then
+              echo "Result: changes detected"
+              echo "detected=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Result: no change detected"
+              echo "detected=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
   build:
@@ -84,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true # for shunit2
+          submodules: true
 
       - name: Build image
         run: |
@@ -124,15 +127,15 @@ jobs:
       - name: Load image
         run: docker load -i "${{ inputs.tag }}.tar"
 
-      - name: Push image to GitHub registry
+      - name: Push image to GitHub Container Registry
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com \
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
             -u ${{ github.actor }} --password-stdin
 
-          github_tag=docker.pkg.github.com/${{ inputs.image }}/${{ inputs.tag }}
-          docker tag "${{ inputs.image }}:${{ inputs.tag }}" $github_tag
-          docker push "$github_tag"
-          docker logout docker.pkg.github.com
+          ghcr_tag=ghcr.io/${{ inputs.image }}/${{ inputs.tag }}
+          docker tag "${{ inputs.image }}:${{ inputs.tag }}" $ghcr_tag
+          docker push "$ghcr_tag"
+          docker logout ghcr.io
 
       - name: Push images to Docker Hub registry
         run: |
