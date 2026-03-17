@@ -1,17 +1,19 @@
-# SFTP
+# Easy SFTP
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/atmoz/sftp/build.yml?logo=github) ![GitHub stars](https://img.shields.io/github/stars/atmoz/sftp?logo=github) ![Docker Stars](https://img.shields.io/docker/stars/atmoz/sftp?label=stars&logo=docker) ![Docker Pulls](https://img.shields.io/docker/pulls/atmoz/sftp?label=pulls&logo=docker)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/maduonline/easy-sftp/build.yml?logo=github) ![GitHub stars](https://img.shields.io/github/stars/maduonline/easy-sftp?logo=github) ![Docker Stars](https://img.shields.io/docker/stars/maduonline/easy-sftp?label=stars&logo=docker) ![Docker Pulls](https://img.shields.io/docker/pulls/maduonline/easy-sftp?label=pulls&logo=docker)
 
-![OpenSSH logo](https://raw.githubusercontent.com/atmoz/sftp/master/openssh.png "Powered by OpenSSH")
+![OpenSSH logo](https://raw.githubusercontent.com/maduonline/easy-sftp/master/openssh.png "Powered by OpenSSH")
 
 # Supported tags and respective `Dockerfile` links
 
-- [`debian`, `latest` (*Dockerfile*)](https://github.com/atmoz/sftp/blob/master/Dockerfile) ![Docker Image Size (debian)](https://img.shields.io/docker/image-size/atmoz/sftp/debian?label=debian&logo=debian&style=plastic)
-- [`alpine` (*Dockerfile*)](https://github.com/atmoz/sftp/blob/master/Dockerfile-alpine) ![Docker Image Size (alpine)](https://img.shields.io/docker/image-size/atmoz/sftp/alpine?label=alpine&logo=Alpine%20Linux&style=plastic)
+- [`debian`, `latest` (*Dockerfile*)](https://github.com/maduonline/easy-sftp/blob/master/Dockerfile) ![Docker Image Size (debian)](https://img.shields.io/docker/image-size/maduonline/easy-sftp/debian?label=debian&logo=debian&style=plastic)
+- [`alpine` (*Dockerfile*)](https://github.com/maduonline/easy-sftp/blob/master/Dockerfile-alpine) ![Docker Image Size (alpine)](https://img.shields.io/docker/image-size/maduonline/easy-sftp/alpine?label=alpine&logo=Alpine%20Linux&style=plastic)
 
 # Securely share your files
 
 Easy to use SFTP ([SSH File Transfer Protocol](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol)) server with [OpenSSH](https://en.wikipedia.org/wiki/OpenSSH).
+
+This project is a fork of [atmoz/sftp](https://github.com/atmoz/sftp).
 
 # Usage
 
@@ -36,7 +38,7 @@ Easy to use SFTP ([SSH File Transfer Protocol](https://en.wikipedia.org/wiki/SSH
 ## Simplest docker run example
 
 ```
-docker run -p 22:22 -d atmoz/sftp foo:pass:::upload
+docker run -p 22:22 -d maduonline/easy-sftp foo:pass:::upload
 ```
 
 User "foo" with password "pass" can login with sftp and upload files to a folder called "upload". No mounted directories or custom UID/GID. Later you can inspect the files and use `--volumes-from` to mount them somewhere else (or see next example).
@@ -48,7 +50,7 @@ Let's mount a directory and set UID:
 ```
 docker run \
     -v <host-dir>/upload:/home/foo/upload \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d maduonline/easy-sftp \
     foo:pass:1001
 ```
 
@@ -56,7 +58,7 @@ docker run \
 
 ```
 sftp:
-    image: atmoz/sftp
+    image: maduonline/easy-sftp
     volumes:
         - <host-dir>/upload:/home/foo/upload
     ports:
@@ -74,7 +76,7 @@ The OpenSSH server runs by default on port 22, and in this example, we are forwa
 docker run \
     -v <host-dir>/users.conf:/etc/sftp/users.conf:ro \
     -v mySftpVolume:/home \
-    -p 2222:22 -d atmoz/sftp
+    -p 2222:22 -d maduonline/easy-sftp
 ```
 
 <host-dir>/users.conf:
@@ -92,7 +94,7 @@ Add `:e` behind password to mark it as encrypted. Use single quotes if using ter
 ```
 docker run \
     -v <host-dir>/share:/home/foo/share \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d maduonline/easy-sftp \
     'foo:$1$0G2g0GSt$ewU0t6GXG15.0hWoOX8X9.:e:1001'
 ```
 
@@ -108,7 +110,7 @@ docker run \
     -v <host-dir>/id_rsa.pub:/home/foo/.ssh/keys/id_rsa.pub:ro \
     -v <host-dir>/id_other.pub:/home/foo/.ssh/keys/id_other.pub:ro \
     -v <host-dir>/share:/home/foo/share \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d maduonline/easy-sftp \
     foo::1001
 ```
 
@@ -121,7 +123,7 @@ docker run \
     -v <host-dir>/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key \
     -v <host-dir>/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key \
     -v <host-dir>/share:/home/foo/share \
-    -p 2222:22 -d atmoz/sftp \
+    -p 2222:22 -d maduonline/easy-sftp \
     foo::1001
 ```
 
@@ -166,7 +168,7 @@ bindmount /data/docs /home/peter/docs --read-only
 
 # What's the difference between Debian and Alpine?
 
-The biggest differences are in size and OpenSSH version. [Alpine](https://hub.docker.com/_/alpine/) is 10 times smaller than [Debian](https://hub.docker.com/_/debian/). OpenSSH version can also differ, as it's two different teams maintaining the packages. Debian is generally considered more stable and only bugfixes and security fixes are added after each Debian release (about 2 years). Alpine has a faster release cycle (about 6 months) and therefore newer versions of OpenSSH. As I'm writing this, Debian has version 7.4 while Alpine has version 7.5. Recommended reading: [Comparing Debian vs Alpine for container & Docker apps](https://www.turnkeylinux.org/blog/alpine-vs-debian)
+The biggest differences are in size and OpenSSH version. [Alpine](https://hub.docker.com/_/alpine/) is 10 times smaller than [Debian](https://hub.docker.com/_/debian/). OpenSSH version can also differ, as it's two different teams maintaining the packages. Debian is generally considered more stable and only bugfixes and security fixes are added after each Debian release (about 2 years). Alpine has a faster release cycle (about 6 months) and therefore newer versions of OpenSSH. Recommended reading: [Comparing Debian vs Alpine for container & Docker apps](https://www.turnkeylinux.org/blog/alpine-vs-debian)
 
 # What version of OpenSSH do I get?
 
@@ -174,7 +176,3 @@ It depends on which linux distro and version you choose (see available images at
 
 - [List of `openssh` packages on Alpine releases](https://pkgs.alpinelinux.org/packages?name=openssh&branch=&repo=main&arch=x86_64)
 - [List of `openssh-server` packages on Debian releases](https://packages.debian.org/search?keywords=openssh-server&searchon=names&exact=1&suite=all&section=main)
-
-# Daily builds
-
-Images are automatically built daily to get the newest version of OpenSSH provided by the package managers.
