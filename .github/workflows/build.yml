@@ -1,8 +1,6 @@
 name: build
 
 on:
-  schedule:
-    - cron: "0 12 * * *"
   push:
     paths-ignore:
       - "*.md"
@@ -17,16 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # for proper signature verification
-
-      - name: Verify signature
-        if: github.repository == 'atmoz/sftp'
-        uses: atmoz/git-verify-ref@master
-        with:
-          import-github-users: atmoz
+          fetch-depth: 0
 
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@2.0.0
         with:
           ignore_paths: tests/shunit2
 
@@ -35,9 +27,8 @@ jobs:
     uses: ./.github/workflows/build-image.yml
     with:
       containerfile: Dockerfile-alpine
-      image: "$GITHUB_REPOSITORY"
+      image: maduonline/easy-sftp
       tag: alpine
-      update-check: "apk update >/dev/null && apk list --upgradable"
     secrets: inherit
 
   debian:
@@ -45,7 +36,6 @@ jobs:
     uses: ./.github/workflows/build-image.yml
     with:
       containerfile: Dockerfile
-      image: "$GITHUB_REPOSITORY"
+      image: maduonline/easy-sftp
       tag: debian
-      update-check: "apt-get update >/dev/null && apt-get upgrade -s | grep '^Inst' || true"
     secrets: inherit
