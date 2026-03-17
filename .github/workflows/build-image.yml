@@ -35,6 +35,8 @@ jobs:
 
       - name: Test image
         run: tests/run "${{ inputs.image }}:${{ inputs.tag }}"
+        env:
+          CONTAINER_ENGINE: docker
 
       - name: Push image to Docker Hub
         if: github.ref == 'refs/heads/master'

@@ -30,7 +30,7 @@ sshKeyPub="$tmpDir/rsa.pub"
 sshHostEd25519Key="$tmpDir/ssh_host_ed25519_key"
 sshHostKeyMountArg="--volume=$sshHostEd25519Key:/etc/ssh/ssh_host_ed25519_key"
 sshKnownHosts="$tmpDir/known_hosts"
-runArgs=("-P" "--network=private" "$sshHostKeyMountArg")
+runArgs=("-P" "$sshHostKeyMountArg")
 
 # podman or docker
 if [ -z "$CONTAINER_ENGINE" ]; then
