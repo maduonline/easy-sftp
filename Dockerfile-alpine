@@ -1,6 +1,6 @@
 FROM alpine:3.23
 
-LABEL maintainer="atmoz.net"
+LABEL maintainer="maduonline"
 LABEL org.opencontainers.image.description="Secure SFTP server based on OpenSSH (Alpine)"
 
 # Steps done in one RUN layer:

@@ -1,6 +1,6 @@
 FROM debian:trixie-slim
 
-LABEL maintainer="atmoz.net"
+LABEL maintainer="maduonline"
 LABEL org.opencontainers.image.description="Secure SFTP server based on OpenSSH"
 
 # Steps done in one RUN layer:
